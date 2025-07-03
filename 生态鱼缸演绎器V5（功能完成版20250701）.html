@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子生态鱼缸</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+        }
+        
+        .aquarium {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+            overflow: hidden;
+        }
+        
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80%;
+            background-color: rgba(173, 216, 230, 0.7);
+            border-bottom: 10px solid #696969;
+            border-bottom-left-radius: 50%;
+            border-bottom-right-radius: 50%;
+            box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fish {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .fish-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50% 50% 50% 50%;
+            z-index: 2;
+        }
+        
+        .fish-tail {
+            position: absolute;
+            left: -10px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background-color: inherit;
+            clip-path: polygon(0% 0%, 0% 100%, 100% 50%);
+            transform-origin: left center;
+            z-index: 1;
+        }
+        
+        .fish-fin-top {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            width: 20px;
+            height: 15px;
+            background-color: rgba(255, 255, 255, 0.3);
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            z-index: 2;
+        }
+        
+        .fish-fin-bottom {
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            width: 20px;
+            height: 15px;
+            background-color: rgba(255, 255, 255, 0.3);
+            clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
+            z-index: 2;
+        }
+        
+        .fish-eye {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            z-index: 3;
+        }
+        
+        .fish-pupil {
+            position: absolute;
+            right: 3px;
+            top: 3px;
+            width: 4px;
+            height: 4px;
+            background-color: black;
+            border-radius: 50%;
+            z-index: 4;
+        }
+        
+        .fish-mouth {
+            position: absolute;
+            right: -5px;
+            top: 12px;
+            width: 8px;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 50% 0 0 50%;
+            z-index: 3;
+        }
+        
+        .fish-scale {
+            position: absolute;
+            width: 8px;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .bubbles {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            animation: bubble 5s infinite ease-in;
+        }
+        
+        .seaweed {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            background-color: #228B22;
+            border-radius: 50% 50% 0 0;
+            animation: sway 3s infinite ease-in-out;
+        }
+        
+        .aquarium-bottom {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20%;
+            background-color: #696969;
+            border-top-left-radius: 50%;
+            border-top-right-radius: 50%;
+        }
+        
+        .sand {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #F5DEB3;
+            border-top-left-radius: 50%;
+            border-top-right-radius: 50%;
+        }
+        
+        .reflection {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+            animation: reflect 3s infinite alternate;
+        }
+        
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fish-bounding-box {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed rgba(255, 0, 0, 0.7);
+            pointer-events: none;
+            z-index: 5;
+            visibility: hidden;
+        }
+        
+        .sun {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 80px;
+            height: 80px;
+            background-color: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 50px #FFD700;
+            z-index: 0;
+        }
+        
+        /* 对话控制器样式 */
+        .dialogue-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        .dialogue-form {
+            margin-top: 20px;
+        }
+        
+        .dialogue-form label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .dialogue-form input,
+        .dialogue-form select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .dialogue-form button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .dialogue-form button:hover {
+            background-color: #0056b3;
+        }
+        
+        .dialogue-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        
+        .dialogue-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            position: relative;
+        }
+        
+        .dialogue-item:hover {
+            background-color: #e8f4ff;
+            cursor: pointer;
+        }
+        
+        .dialogue-item.selected {
+            background-color: #d1e6ff;
+        }
+        
+        .delete-dialogue {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        /* 对话气泡样式 */
+        .dialogue-bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 8px 12px;
+            max-width: 200px;
+            z-index: 6;
+            pointer-events: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: bubbleFade 0.5s ease-in-out;
+        }
+        
+        .dialogue-bubble-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        
+        /* 动画控制器样式 */
+        .animation-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 200px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        .animation-form {
+            margin-top: 15px;
+        }
+        
+        .animation-form label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+        }
+        
+        .animation-form input,
+        .animation-form select {
+            width: 100%;
+            padding: 7px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .animation-form button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 13px;
+        }
+        
+        .animation-form button:hover {
+            background-color: #218838;
+        }
+
+        .close-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .close-btn:hover {
+            background-color: #c82333;
+        }
+        
+        /* 音频按钮样式 */
+        .audio-input-container {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        #audio-input {
+            padding: 8px;
+            background-color: #f8f9fa;
+            border: 2px dashed #007bff;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        /* 保存按钮样式 */
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .save-btn:hover {
+            background-color: #218838;
+        }
+        
+        .temp-save-btn {
+            background-color: #ffc107;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .temp-save-btn:hover {
+            background-color: #e0a800;
+        }
+        
+        .load-btn {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .load-btn:hover {
+            background-color: #138496;
+        }
+        
+        @keyframes bubbleFade {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes bubble {
+            0% {
+                bottom: 0;
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                bottom: 80%;
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes sway {
+            0%, 100% {
+                transform: rotate(-5deg);
+            }
+            50% {
+                transform: rotate(5deg);
+            }
+        }
+        
+        @keyframes reflect {
+            0% {
+                opacity: 0.1;
+            }
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .typing-text {
+            overflow: hidden;
+            white-space: pre-wrap;    /* 支持自动换行 */
+            word-break: break-word;
+            display: inline-block;
+            min-width: 0;
+            max-width: 200px;
+            width: 0;
+            transition: width 0.1s linear;
+            border-right: 2px solid #333;
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="aquarium">
+        <div class="reflection"></div>
+        <div class="title"></div>
+        
+        <div class="aquarium-bottom">
+            <div class="sand"></div>
+        </div>
+        
+        <div class="water"></div>
+    </div>
+
+    <div class="dialogue-bubble">
+        <span class="typing-text"></span>
+    </div>
+    <!-- 对话控制器 -->
+    <div class="dialogue-container" id="dialogue-container">
+        <h3>对话编排控制器</h3>
+        <div class="dialogue-form">
+            <label for="selected-fish">选择鱼:</label>
+            <select id="selected-fish"></select>
+            
+            <label for="dialogue-text">对话内容:</label>
+            <input type="text" id="dialogue-text" placeholder="输入对话内容">
+            
+            <label for="dialogue-time">对话时间(秒):</label>
+            <input type="number" id="dialogue-time" min="0" step="0.1" value="3">
+            
+            <!-- 音频输入区域 -->
+            <div class="audio-input-container">
+                <label for="audio-input">音频文件:</label>
+                <input type="file" id="audio-input" accept="audio/*">
+            </div>
+            <div class="audio-drop-zone" id="audio-drop-zone" style="border: 2px dashed #007bff; padding: 20px; text-align: center; margin-top: 10px;">
+                拖放音频文件到这里
+            </div>
+            
+            <label for="edit-dialogue-id" style="display: none;">修改ID:</label>
+            <input type="number" id="edit-dialogue-id" style="display: none;">
+            
+            <button id="add-dialogue">添加对话</button>
+            <button id="update-dialogue" style="display: none;">更新对话</button>
+            <button id="play-dialogues">播放对话</button>
+            <button id="clear-dialogues">清除对话</button>
+            <button class="temp-save-btn" id="temp-save-dialogues">临时保存</button>
+            <button class="load-btn" id="load-temp-dialogues">加载临时保存</button>
+            <button class="save-btn" id="save-dialogues">保存编排为JSON</button>
+            <button class="load-btn" id="load-dialogues">加载JSON</button>
+        </div>
+        
+        <div class="dialogue-list" id="dialogue-list">
+            <h4>当前对话列表</h4>
+        </div>
+    </div>
+
+    <!-- 动画控制器 -->
+    <div class="animation-container" id="animation-container">
+        <h3>动画控制编辑器</h3>
+        <button class="close-btn" id="close-animation">关闭</button>
+        <div class="animation-form">
+            <label for="selected-fish-animation">选择鱼:</label>
+            <select id="selected-fish-animation"></select>
+            
+            <label for="animation-type">动画类型:</label>
+            <select id="animation-type">
+                <option value="move">移动</option>
+                <option value="rotate">旋转</option>
+                <option value="scale">缩放</option>
+            </select>
+            
+            <label for="animation-x">X 坐标:</label>
+            <input type="number" id="animation-x" value="0">
+            
+            <label for="animation-y">Y 坐标:</label>
+            <input type="number" id="animation-y" value="0">
+            
+            <label for="animation-angle">角度:</label>
+            <input type="number" id="animation-angle" value="0">
+            
+            <label for="animation-scale">缩放比例:</label>
+            <input type="number" id="animation-scale" value="1" step="0.1">
+            
+            <label for="animation-duration">持续时间(秒):</label>
+            <input type="number" id="animation-duration" value="2" step="0.1">
+            
+            <button id="add-animation">添加动画</button>
+            <button id="clear-animations">清除动画</button>
+        </div>
+    </div>
+
+    <script>
+        class Fish {
+            constructor(aquarium, index) {
+                this.aquarium = aquarium;
+                this.container = document.createElement('div');
+                this.container.style.position = 'absolute';
+                this.container.style.width = '60px';
+                this.container.style.height = '30px';
+                
+                // 随机属性
+                this.width = 60 + Math.random() * 40;
+                this.height = this.width * 0.5;
+                this.container.style.width = this.width + 'px';
+                this.container.style.height = this.height + 'px';
+                
+                // 为每条鱼添加属性
+                this.baseColor = this.randomColor();
+                this.color = `rgb(${this.baseColor[0]}, ${this.baseColor[1]}, ${this.baseColor[2]})`;
+                
+                this.id = "fish_" + index;
+                this.isSpeaking = false;
+                this.dialogueBubble = null;
+                this.activeAnimation = null;
+                this.animations = [];
+                this.audioElement = new Audio();
+                
+                // 创建鱼身体部件
+                this.body = document.createElement('div');
+                this.body.classList.add('fish-body');
+                this.body.style.backgroundColor = this.color;
+                
+                this.tail = document.createElement('div');
+                this.tail.classList.add('fish-tail');
+                this.tail.style.backgroundColor = this.color;
+                
+                this.finTop = document.createElement('div');
+                this.finTop.classList.add('fish-fin-top');
+                
+                this.finBottom = document.createElement('div');
+                this.finBottom.classList.add('fish-fin-bottom');
+                
+                this.eye = document.createElement('div');
+                this.eye.classList.add('fish-eye');
+                
+                this.pupil = document.createElement('div');
+                this.pupil.classList.add('fish-pupil');
+                this.eye.appendChild(this.pupil);
+                
+                this.mouth = document.createElement('div');
+                this.mouth.classList.add('fish-mouth');
+                
+                this.container.appendChild(this.body);
+                this.container.appendChild(this.tail);
+                this.container.appendChild(this.finTop);
+                this.container.appendChild(this.finBottom);
+                this.container.appendChild(this.eye);
+                this.container.appendChild(this.mouth);
+                
+                // 创建鱼鳞
+                this.createScales();
+                
+                // 创建包围框
+                this.boundingBox = document.createElement('div');
+                this.boundingBox.classList.add('fish-bounding-box');
+                this.container.appendChild(this.boundingBox);
+                
+                // 位置和运动属性
+                this.x = Math.random() * (window.innerWidth - this.width);
+                this.y = Math.random() * (window.innerHeight * 0.6) + window.innerHeight * 0.2;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.speed = 0.5 + Math.random() * 1.5;
+                this.tailWagSpeed = 0.2 + Math.random() * 0.3;
+                this.bodyWagSpeed = 0.1 + Math.random() * 0.1;
+                this.direction = 1; // 1 表示向右，-1 表示向左
+                this.rotation = 0;
+                this.scale = 1;
+                this.originalX = this.x;
+                this.originalY = this.y;
+                this.wagAngle = 0;
+                this.animationStartTime = 0;
+                this.animationDuration = 0;
+                this.currentAnimation = null;
+                
+                this.container.style.left = this.x + 'px';
+                this.container.style.top = this.y + 'px';
+                
+                aquarium.appendChild(this.container);
+                
+                // 添加点击事件监听器
+                this.container.addEventListener('click', () => {
+                    this.toggleBoundingBox();
+                });
+            }
+            
+            randomColor() {
+                const red = Math.floor(Math.random() * 128) + 128; // 128-255
+                const green = Math.floor(Math.random() * 128) + 128;
+                const blue = Math.floor(Math.random() * 128) + 128;
+                return [red, green, blue];
+            }
+            
+            createScales() {
+                const scaleCount = 8 + Math.floor(Math.random() * 5);
+                const scaleSpacing = this.width / scaleCount;
+                
+                for (let i = 0; i < scaleCount; i++) {
+                    const scale = document.createElement('div');
+                    scale.classList.add('fish-scale');
+                    
+                    // 随机鱼鳞位置和大小
+                    const xPos = 10 + i * scaleSpacing;
+                    const yPos = 8 + Math.sin(i * 0.5) * 5;
+                    const scaleSize = 4 + Math.random() * 4;
+                    
+                    scale.style.left = xPos + 'px';
+                    scale.style.top = yPos + 'px';
+                    scale.style.width = scaleSize + 'px';
+                    scale.style.height = scaleSize * 0.8 + 'px';
+                    
+                    this.body.appendChild(scale);
+                }
+            }
+            
+            toggleBoundingBox() {
+                // 切换包围框的显示状态
+                if (this.boundingBox.style.visibility === 'visible' || this.boundingBox.style.visibility === '') {
+                    this.boundingBox.style.visibility = 'hidden';
+                } else {
+                    this.boundingBox.style.visibility = 'visible';
+                }
+            }
+            
+            speak(text, duration, audioUrl) {
+                this.isSpeaking = true;
+
+                // 更新嘴部样式
+                this.mouth.style.opacity = '1';
+                this.mouth.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                this.pupil.style.transform = 'translate(10px, 0)';
+                this.eye.style.borderRadius = '0 50% 50% 0';
+
+                // 清除旧气泡
+                if (this.dialogueBubble) {
+                    this.dialogueBubble.remove();
+                    this.dialogueBubble = null;
+                }
+
+                // 创建新气泡
+                this.dialogueBubble = document.createElement('div');
+                this.dialogueBubble.classList.add('dialogue-bubble');
+
+                // 创建 span 用于实现逐字动画
+                const textSpan = document.createElement('span');
+                textSpan.classList.add('typing-text');
+                textSpan.textContent = text;
+
+                // 动态设置动画持续时间
+                textSpan.style.animationDuration = `${duration}s`;
+
+                this.dialogueBubble.appendChild(textSpan);
+                this.aquarium.appendChild(this.dialogueBubble);
+
+                // 计算气泡位置
+                const bubbleWidth = text.length * 8 + 20; // 根据字符长度估算宽度
+                this.dialogueBubble.style.width = `${Math.min(bubbleWidth, 200)}px`;
+                const bubbleX = this.x + (this.direction === 1 ? this.width + 10 : -bubbleWidth - 10);
+                const bubbleY = this.y - 15;
+                this.dialogueBubble.style.left = bubbleX + 'px';
+                this.dialogueBubble.style.top = bubbleY + 'px';
+
+                // // 添加箭头
+                // const arrow = document.createElement('div');
+                // arrow.classList.add('dialogue-bubble-arrow');
+                // if (this.direction === 1) {
+                //     arrow.style.borderLeft = '8px solid rgba(255, 255, 255, 0.9)';
+                //     arrow.style.right = '0';
+                // } else {
+                //     arrow.style.borderRight = '8px solid rgba(255, 255, 255, 0.9)';
+                //     arrow.style.left = '0';
+                // }
+                // arrow.style.top = '50%';
+                // arrow.style.transform = 'translateY(-50%)';
+                // arrow.style.position = 'absolute';
+                // this.dialogueBubble.appendChild(arrow);
+
+                // 启动逐字动画
+                this.startTypingAnimation(this.dialogueBubble, text, duration);
+
+                // 播放音频 —— 强制更新 src 并播放
+                this.audioElement.pause(); // 停止当前播放
+                this.audioElement.currentTime = 0; // 重置时间
+
+                // ✅ 每次都更新音频源
+                this.audioElement.src = audioUrl;
+                this.audioElement.load(); // 重新加载音频资源
+                this.audioElement.play().catch(e => console.error("播放失败:", e));
+
+                // // 播放音频
+                // if (audioUrl && !this.audioElement.src) {
+                //     this.audioElement.src = audioUrl;
+                // }
+
+                // this.audioElement.currentTime = 0;
+                // this.audioElement.play();
+
+                // 双击编辑功能
+                this.dialogueBubble.addEventListener('dblclick', () => {
+                    const newText = prompt('请输入新的对话内容:', text);
+                    const newDuration = prompt('请输入新的对话时间（秒）:', duration.toString());
+
+                    if (newText !== null && newDuration !== null) {
+                        clearInterval(this.typingTimer); // 停止当前动画
+                        text = newText;
+                        duration = parseFloat(newDuration);
+
+                        // 重置内容和宽度
+                        const textSpan = this.dialogueBubble.querySelector('.typing-text');
+                        textSpan.textContent = '';
+                        this.startTypingAnimation(this.dialogueBubble, text, duration);
+                    }
+                });
+                // 结束说话
+                setTimeout(() => {
+                    this.stopSpeaking();
+                }, duration * 1000);
+            }
+            
+            startTypingAnimation(bubble, text, duration) {
+    const textSpan = bubble.querySelector('.typing-text');
+    textSpan.textContent = ''; // 清空旧内容
+    textSpan.style.width = 'auto';
+
+    const totalLength = text.length;
+    const intervalTime = duration * 1000 / totalLength;
+
+    let displayedText = '';
+    let currentIndex = 0;
+
+    console.log("开始逐字打印:", text);
+
+    const timer = setInterval(() => {
+        if (currentIndex < totalLength) {
+            displayedText += text[currentIndex];
+            currentIndex++;
+
+            // 模拟换行
+            textSpan.textContent = displayedText;
+
+            if (textSpan.scrollWidth > 200) {
+                // 换行
+                const words = displayedText.split(' ');
+                let line = '';
+                let tempLine = '';
+                for (let i = 0; i < words.length; i++) {
+                    tempLine += (tempLine ? ' ' : '') + words[i];
+                    textSpan.textContent = tempLine;
+                    if (textSpan.scrollWidth > 200) {
+                        // 当前行超宽，回退
+                        displayedText = line + '\n' + words[i];
+                        tempLine = words[i];
+                    } else {
+                        line = tempLine;
+                    }
+                }
+                textSpan.textContent = displayedText;
+            }
+
+        } else {
+            clearInterval(timer);
+            textSpan.style.borderRight = 'none';
+            console.log("逐字打印完成");
+        }
+    }, intervalTime);
+
+    this.typingTimer = timer;
+}
+            
+            stopSpeaking() {
+                this.isSpeaking = false;
+                this.mouth.style.opacity = '0.4';
+                this.mouth.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                this.pupil.style.transform = 'translate(0, 0)';
+                this.eye.style.borderRadius = '50%';
+                
+                // 移除对话气泡
+                if (this.dialogueBubble) {
+                    this.dialogueBubble.remove();
+                    this.dialogueBubble = null;
+                }
+                  // 停止打字动画计时器
+                if (this.typingTimer) {
+                    clearInterval(this.typingTimer);
+                    this.typingTimer = null;
+                }
+            }
+            
+            updatePosition(fishes) {
+                // 如果正在执行动画，则不进行常规游动
+                if (this.activeAnimation) {
+                    this.updateAnimation();
+                    return;
+                }
+                
+                // 摆动角度更新
+                this.wagAngle += 0.1; // 控制摆动速度
+                
+                // 鱼尾摆动
+                const currentAngle = Math.sin(this.wagAngle) * 20; // 使用正弦函数生成摆动效果
+                this.tail.style.transform = `rotateZ(${currentAngle}deg)`;
+                
+                // 边界检测和反弹
+                const buffer = 10; // 边界缓冲区
+                if (this.x < buffer || this.x > window.innerWidth - this.width - buffer) {
+                    this.vx *= -1;
+                    this.direction *= -1;
+                    // 调整位置以避免卡顿
+                    if (this.x < buffer) this.x = buffer;
+                    if (this.x > window.innerWidth - this.width - buffer) this.x = window.innerWidth - this.width - buffer;
+                }
+                
+                // 水面位置
+                const waterSurface = window.innerHeight * 0.2;
+                
+                // 确保鱼不会超出水面
+                if (this.y < waterSurface + buffer) {
+                    this.y = waterSurface + buffer;
+                    this.vy = Math.abs(this.vy); // 向下反弹
+                }
+                
+                if (this.y > window.innerHeight * 0.8 - this.height - buffer) {
+                    this.vy *= -1;
+                    // 调整位置以避免卡顿
+                    this.y = window.innerHeight * 0.8 - this.height - buffer;
+                }
+                
+                // 鱼群行为模拟
+                let groupCenterX = 0;
+                let groupCenterY = 0;
+                let groupSize = 0;
+                let separationForceX = 0;
+                let separationForceY = 0;
+                let alignmentForceX = 0;
+                let alignmentForceY = 0;
+                
+                const separationDistance = 150;
+                const alignmentDistance = 200;
+                const cohesionDistance = 300;
+                
+                for (const fish of fishes) {
+                    if (fish === this) continue;
+                    
+                    const dx = this.direction === 1 ? fish.x - this.x : this.x - fish.x;
+                    const dy = fish.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < separationDistance) {
+                        // 分离：远离附近的鱼
+                        separationForceX -= dx / distance;
+                        separationForceY -= dy / distance;
+                    }
+                    
+                    if (distance < alignmentDistance) {
+                        // 对齐：与附近的鱼速度一致
+                        alignmentForceX += fish.vx;
+                        alignmentForceY += fish.vy;
+                        groupSize++;
+                    }
+                    
+                    if (distance < cohesionDistance) {
+                        // 聚合：向鱼群中心移动
+                        groupCenterX += fish.x;
+                        groupCenterY += fish.y;
+                    }
+                }
+                
+                if (groupSize > 0) {
+                    alignmentForceX /= groupSize;
+                    alignmentForceY /= groupSize;
+                    
+                    // 归一化并对齐力进行缩放
+                    const alignmentSpeed = Math.sqrt(alignmentForceX * alignmentForceX + alignmentForceY * alignmentForceY);
+                    if (alignmentSpeed > 0) {
+                        alignmentForceX /= alignmentSpeed;
+                        alignmentForceY /= alignmentSpeed;
+                        alignmentForceX *= 0.03;
+                        alignmentForceY *= 0.03;
+                    }
+                }
+                
+                if (groupCenterX > 0 && groupCenterY > 0) {
+                    // 计算群体中心
+                    groupCenterX /= fishes.length;
+                    groupCenterY /= fishes.length;
+                    
+                    // 计算朝向中心的方向
+                    const centerX = groupCenterX - this.x;
+                    const centerY = groupCenterY - this.y;
+                    const centerDistance = Math.sqrt(centerX * centerX + centerY * centerY);
+                    
+                    // 归一化并缩放聚合力
+                    if (centerDistance > 0) {
+                        const cohesionForceX = centerX / centerDistance * 0.01;
+                        const cohesionForceY = centerY / centerDistance * 0.01;
+                        
+                        // 将聚合力添加到速度
+                        this.vx += cohesionForceX;
+                        this.vy += cohesionForceY;
+                    }
+                }
+                
+                // 应用力
+                this.vx += separationForceX * 0.05;
+                this.vy += separationForceY * 0.05;
+                this.vx += alignmentForceX;
+                this.vy += alignmentForceY;
+                
+                // 限制最大速度
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > this.speed * 2) {
+                    this.vx = (this.vx / speed) * this.speed * 2;
+                    this.vy = (this.vy / speed) * this.speed * 2;
+                }
+                
+                // 更新位置
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // 更新元素位置
+                this.container.style.left = this.x + 'px';
+                this.container.style.top = this.y + 'px';
+                
+                // 应用旋转和缩放
+                this.container.style.transform = `scaleX(${this.direction}) rotate(${this.rotation}deg) scale(${this.scale})`;
+                
+                // 鱼嘴动画
+                this.mouth.style.opacity = speed > 0.5 ? '0.8' : '0.4';
+                
+                // 鱼尾颜色变化
+                const colorOffset = Math.sin(this.wagAngle) * 30;
+                const newRed = Math.min(255, Math.max(0, this.baseColor[0] + colorOffset));
+                const newGreen = Math.min(255, Math.max(0, this.baseColor[1] + colorOffset));
+                const newBlue = Math.min(255, Math.max(0, this.baseColor[2] + colorOffset));
+                this.tail.style.backgroundColor = `rgb(${newRed}, ${newGreen}, ${newBlue})`;
+                
+                // 鱼身摆动
+                this.body.style.transform = `rotate(${Math.sin(this.bodyWagSpeed * 20) * 3}deg)`;
+                
+                // 随机改变方向
+                if (Math.random() < 0.02) {
+                    this.vx += (Math.random() - 0.5) * 0.5;
+                    this.vy += (Math.random() - 0.5) * 0.5;
+                }
+                
+                // 如果正在说话，更新嘴部动画
+                if (this.isSpeaking) {
+                    const mouthWidth = 8 + Math.sin(Date.now() / 100) * 4;
+                    this.mouth.style.width = mouthWidth + 'px';
+                }
+                
+                // 如果有对话气泡，更新位置
+                if (this.dialogueBubble) {
+                    const bubbleWidth = this.dialogueBubble.clientWidth;
+                    const bubbleX = this.x + (this.direction === 1 ? this.width + 10 : -bubbleWidth - 10);
+                    const bubbleY = this.y - 15;
+                    
+                    this.dialogueBubble.style.left = bubbleX + 'px';
+                    this.dialogueBubble.style.top = bubbleY + 'px';
+                }
+            }
+            
+            updateAnimation() {
+                const now = Date.now();
+                const elapsed = (now - this.animationStartTime) / 1000;
+                
+                if (elapsed >= this.animationDuration) {
+                    // 动画结束
+                    this.activeAnimation = null;
+                    return;
+                }
+                
+                let targetX = this.originalX;
+                let targetY = this.originalY;
+                let targetRotation = 0;
+                let targetScale = 1;
+                
+                switch (this.currentAnimation.type) {
+                    case 'move':
+                        targetX = this.originalX + this.currentAnimation.x * 50; // 放大移动距离
+                        targetY = this.originalY + this.currentAnimation.y * 50;
+                        break;
+                    case 'rotate':
+                        targetRotation = this.currentAnimation.angle * 10; // 放大旋转角度
+                        break;
+                    case 'scale':
+                        targetScale = this.currentAnimation.scale;
+                        break;
+                }
+                
+                // 线性插值计算当前位置
+                this.x = this.originalX + (targetX - this.originalX) * (elapsed / this.animationDuration);
+                this.y = this.originalY + (targetY - this.originalY) * (elapsed / this.animationDuration);
+                this.rotation = 0 + (targetRotation - 0) * (elapsed / this.animationDuration);
+                this.scale = 1 + (targetScale - 1) * (elapsed / this.animationDuration);
+                
+                // 更新鱼的位置、旋转和缩放
+                this.container.style.left = this.x + 'px';
+                this.container.style.top = this.y + 'px';
+                this.container.style.transform = `scaleX(${this.direction}) rotate(${this.rotation}deg) scale(${this.scale})`;
+                
+                // 如果有对话气泡，更新位置
+                if (this.dialogueBubble) {
+                    const bubbleWidth = this.dialogueBubble.clientWidth;
+                    const bubbleX = this.x + (this.direction === 1 ? this.width + 10 : -bubbleWidth - 10);
+                    const bubbleY = this.y - 15;
+                    
+                    this.dialogueBubble.style.left = bubbleX + 'px';
+                    this.dialogueBubble.style.top = bubbleY + 'px';
+                }
+            }
+            
+            applyAnimation(animation) {
+                this.currentAnimation = animation;
+                this.animationStartTime = Date.now();
+                this.animationDuration = animation.duration;
+                this.originalX = this.x;
+                this.originalY = this.y;
+                this.activeAnimation = true;
+            }
+        }
+
+        // 初始化鱼缸
+        let fishes = [];
+        const aquarium = document.querySelector('.aquarium');
+        const numFish = 15;
+
+        for (let i = 0; i < numFish; i++) {
+            fishes.push(new Fish(aquarium, i));
+            console.log(`Fish created: ${i}`);
+        }
+
+        // 创建气泡
+        function createBubbles() {
+            const aquarium = document.querySelector('.aquarium');
+            for (let i = 0; i < 30; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubbles');
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = 3 + Math.random() * 7 + 's';
+                bubble.style.animationDelay = Math.random() * 5 + 's';
+                bubble.style.width = 5 + Math.random() * 15 + 'px';
+                bubble.style.height = bubble.style.width;
+                aquarium.appendChild(bubble);
+            }
+        }
+        
+        // 创建海草
+        function createSeaweed() {
+            const aquarium = document.querySelector('.aquarium');
+            for (let i = 0; i < 15; i++) {
+                const seaweed = document.createElement('div');
+                seaweed.classList.add('seaweed');
+                seaweed.style.left = Math.random() * 90 + 5 + '%';
+                seaweed.style.height = 80 + Math.random() * 100 + 'px';
+                seaweed.style.animationDelay = Math.random() * 2 + 's';
+                aquarium.appendChild(seaweed);
+            }
+        }
+
+        // 对话管理器
+        class DialogueManager {
+            constructor() {
+                this.dialogues = [];
+                this.activeDialogueIndex = -1;
+                this.selectedDialogueIndex = -1;
+                this.isEditing = false;
+                
+                // 初始化对话控制器
+                this.initDialogueControl();
+                
+                // 填充鱼选项
+                this.populateFishOptions();
+            }
+            
+            initDialogueControl() {
+                const addDialogueBtn = document.getElementById('add-dialogue');
+                const updateDialogueBtn = document.getElementById('update-dialogue');
+                const playDialoguesBtn = document.getElementById('play-dialogues');
+                const clearDialoguesBtn = document.getElementById('clear-dialogues');
+                const tempSaveDialoguesBtn = document.getElementById('temp-save-dialogues');
+                const loadTempDialoguesBtn = document.getElementById('load-temp-dialogues');
+                const saveDialoguesBtn = document.getElementById('save-dialogues');
+                const loadDialoguesBtn = document.getElementById('load-dialogues');
+                const selectedFishSelect = document.getElementById('selected-fish');
+                
+                selectedFishSelect.addEventListener('change', () => {
+                    // 显示选中鱼的包围框
+                    this.showSelectedFishBoundingBox();
+                });
+                
+                addDialogueBtn.addEventListener('click', () => {
+                    this.addDialogue();
+                });
+                
+                updateDialogueBtn.addEventListener('click', () => {
+                    this.updateDialogue();
+                });
+                
+                playDialoguesBtn.addEventListener('click', () => {
+                    this.startDialogues();
+                });
+                
+                clearDialoguesBtn.addEventListener('click', () => {
+                    this.clearDialogues();
+                });
+                
+                tempSaveDialoguesBtn.addEventListener('click', () => {
+                    this.tempSaveDialogues();
+                });
+                
+                loadTempDialoguesBtn.addEventListener('click', () => {
+                    this.loadTempDialogues();
+                });
+                
+                saveDialoguesBtn.addEventListener('click', () => {
+                    this.saveDialogues();
+                });
+                
+                loadDialoguesBtn.addEventListener('click', () => {
+                    this.loadDialogues();
+                });
+            }
+            
+            showSelectedFishBoundingBox() {
+                const selectedFishId = document.getElementById('selected-fish').value;
+                
+                // 隐藏所有鱼的包围框
+                for (const fish of fishes) {
+                    fish.boundingBox.style.visibility = 'hidden';
+                }
+                
+                // 显示选中鱼的包围框
+                for (const fish of fishes) {
+                    if (fish.id === selectedFishId) {
+                        fish.boundingBox.style.visibility = 'visible';
+                        break;
+                    }
+                }
+            }
+            
+            populateFishOptions() {
+                const selectedFishSelect = document.getElementById('selected-fish');
+                const animationFishSelect = document.getElementById('selected-fish-animation');
+                
+                // 从列表中移除所有现有的鱼选项
+                while (selectedFishSelect.firstChild) {
+                    selectedFishSelect.removeChild(selectedFishSelect.firstChild);
+                }
+                
+                while (animationFishSelect.firstChild) {
+                    animationFishSelect.removeChild(animationFishSelect.firstChild);
+                }
+                
+                // 添加鱼作为选项
+                for (const fish of fishes) {
+                    const option1 = document.createElement('option');
+                    option1.value = fish.id;
+                    option1.textContent = `鱼 ${fish.id} (${fish.color})`;
+                    selectedFishSelect.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = fish.id;
+                    option2.textContent = `鱼 ${fish.id} (${fish.color})`;
+                    animationFishSelect.appendChild(option2);
+                }
+            }
+            
+            updateDialogueList() {
+                const dialogueList = document.getElementById('dialogue-list');
+                dialogueList.innerHTML = '<h4>当前对话列表</h4>';
+                
+                // 添加当前对话
+                for (let i = 0; i < this.dialogues.length; i++) {
+                    const dialogue = this.dialogues[i];
+                    
+                    const dialogueItem = document.createElement('div');
+                    dialogueItem.classList.add('dialogue-item');
+                    if (i === this.selectedDialogueIndex) {
+                        dialogueItem.classList.add('selected');
+                    }
+                    dialogueItem.dataset.index = i;
+                    dialogueItem.innerHTML = `
+                        <p>鱼: ${dialogue.fishId}</p>
+                        <p>内容: ${dialogue.text}</p>
+                        <p>时间: ${dialogue.time}秒</p>
+                        <p>音频: ${dialogue.audio ? '已设置' : '未设置'}</p>
+                    `;
+                    
+                    // 添加编辑按钮
+                    const editBtn = document.createElement('button');
+                    editBtn.textContent = '编辑';
+                    editBtn.style.marginRight = '5px';
+                    editBtn.style.backgroundColor = '#17a2b8';
+                    
+                    // 添加删除按钮
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('delete-dialogue');
+                    deleteBtn.textContent = '删除';
+                    
+                    editBtn.addEventListener('click', () => {
+                        this.editDialogue(i);
+                    });
+                    
+                    deleteBtn.addEventListener('click', () => {
+                        this.deleteDialogue(i);
+                    });
+                    
+                    dialogueItem.appendChild(editBtn);
+                    dialogueItem.appendChild(deleteBtn);
+                    dialogueItem.addEventListener('click', () => {
+                        this.selectDialogue(i);
+                    });
+                    
+                    dialogueList.appendChild(dialogueItem);
+                }
+            }
+            
+            findFishById(id) {
+                for (const fish of fishes) {
+                    if (fish.id === id) {
+                        return fish;
+                    }
+                }
+                return null;
+            }
+            
+            addDialogue() {
+                const selectedFishId = document.getElementById('selected-fish').value;
+                const dialogueText = document.getElementById('dialogue-text').value;
+                const dialogueTime = parseFloat(document.getElementById('dialogue-time').value);
+                
+                if (!dialogueText) {
+                    alert('请输入对话内容');
+                    return;
+                }
+                
+                // 创建新对话
+                const audioInput = document.getElementById('audio-input');
+                let audioUrl = null;
+                
+                if (audioInput.files && audioInput.files[0]) {
+                    audioUrl = URL.createObjectURL(audioInput.files[0]);
+                } else {
+                    alert('请输入音频文件');
+                    return;
+                }
+                
+                const dialogue = {
+                    fishId: selectedFishId,
+                    text: dialogueText,
+                    time: dialogueTime,
+                    audio: audioUrl
+                };
+                
+                // 添加到队列
+                this.dialogues.push(dialogue);
+                
+                // 更新对话列表显示
+                this.updateDialogueList();
+                
+                // 清空表单
+                document.getElementById('dialogue-text').value = '';
+                document.getElementById('audio-input').value = '';
+                
+                // 隐藏修改按钮
+                this.isEditing = false;
+                document.getElementById('add-dialogue').style.display = 'inline-block';
+                document.getElementById('update-dialogue').style.display = 'none';
+                document.getElementById('edit-dialogue-id').style.display = 'none';
+            }
+            
+            editDialogue(index) {
+                if (index < 0 || index >= this.dialogues.length) return;
+                
+                const dialogue = this.dialogues[index];
+                
+                // 填充表单
+                document.getElementById('selected-fish').value = dialogue.fishId;
+                document.getElementById('dialogue-text').value = dialogue.text;
+                document.getElementById('dialogue-time').value = dialogue.time;
+                
+                // 隐藏添加按钮，显示修改按钮
+                this.isEditing = true;
+                document.getElementById('add-dialogue').style.display = 'none';
+                document.getElementById('update-dialogue').style.display = 'inline-block';
+                
+                // 保存当前修改对象的ID
+                document.getElementById('edit-dialogue-id').value = index;
+                document.getElementById('edit-dialogue-id').style.display = 'inline-block';
+                
+                // 选中当前对话
+                this.selectDialogue(index);
+            }
+            
+            updateDialogue() {
+                if (!this.isEditing) return;
+                
+                const index = parseInt(document.getElementById('edit-dialogue-id').value);
+                if (index < 0 || index >= this.dialogues.length) return;
+                
+                const selectedFishId = document.getElementById('selected-fish').value;
+                const dialogueText = document.getElementById('dialogue-text').value;
+                const dialogueTime = parseFloat(document.getElementById('dialogue-time').value);
+                
+                const currentFish = this.findFishById(selectedFishId);
+                let audioUrl = null;
+                
+                if (currentFish) {
+                    const audioInput = document.getElementById('audio-input');
+                    if (audioInput.files && audioInput.files[0]) {
+                        audioUrl = URL.createObjectURL(audioInput.files[0]);
+                    } else {
+                        // 保留原有音频
+                        const existingDialogue = this.dialogues[index];
+                        audioUrl = existingDialogue.audio;
+                    }
+                }
+                
+                // 更新对话
+                this.dialogues[index] = {
+                    fishId: selectedFishId,
+                    text: dialogueText,
+                    time: dialogueTime,
+                    audio: audioUrl
+                };
+                
+                // 更新对话列表显示
+                this.updateDialogueList();
+                
+                // 清空表单
+                document.getElementById('dialogue-text').value = '';
+                document.getElementById('audio-input').value = '';
+                
+                // 隐藏修改按钮
+                this.isEditing = false;
+                document.getElementById('add-dialogue').style.display = 'inline-block';
+                document.getElementById('update-dialogue').style.display = 'none';
+                document.getElementById('edit-dialogue-id').style.display = 'none';
+            }
+            
+            deleteDialogue(index) {
+                if (index < 0 || index >= this.dialogues.length) return;
+                
+                // 从队列中移除
+                this.dialogues.splice(index, 1);
+                
+                // 如果删除的是选中的对话，更新选中状态
+                if (this.selectedDialogueIndex === index) {
+                    this.selectedDialogueIndex = -1;
+                } else if (this.selectedDialogueIndex > index) {
+                    this.selectedDialogueIndex--;
+                }
+                
+                // 更新对话列表显示
+                this.updateDialogueList();
+            }
+            
+            selectDialogue(index) {
+                if (index < 0 || index >= this.dialogues.length) return;
+                
+                this.selectedDialogueIndex = index;
+                const dialogue = this.dialogues[index];
+                
+                // 填充表单
+                document.getElementById('selected-fish').value = dialogue.fishId;
+                document.getElementById('dialogue-text').value = dialogue.text;
+                document.getElementById('dialogue-time').value = dialogue.time;
+                
+                // 更新对话列表显示
+                this.updateDialogueList();
+            }
+            
+            startDialogues() {
+                if (this.dialogues.length === 0) {
+                    alert('没有对话要播放');
+                    return;
+                }
+                
+                // 备份当前对话队列
+                this.currentDialogues = [...this.dialogues];
+                this.activeDialogueIndex = -1;
+                
+                // 开始播放
+                this.playNextDialogue();
+            }
+            
+            playNextDialogue() {
+                this.activeDialogueIndex++;
+                
+                if (this.activeDialogueIndex >= this.currentDialogues.length) {
+                    // 所有对话播放完毕
+                    return;
+                }
+                
+                const currentDialogue = this.currentDialogues[this.activeDialogueIndex];
+                const fish = this.findFishById(currentDialogue.fishId);
+                
+                if (fish) {
+                    // 播放对话和音频
+                    fish.speak(currentDialogue.text, currentDialogue.time, currentDialogue.audio);
+                    
+                    // 播放下一个对话
+                    const nextDialogueTime = currentDialogue.time * 1000;
+                    setTimeout(() => {
+                        this.playNextDialogue();
+                    }, nextDialogueTime);
+                } else {
+                    // 如果找不到指定ID的鱼，继续下一个对话
+                    this.playNextDialogue();
+                }
+            }
+            
+            clearDialogues() {
+                this.dialogues = [];
+                this.selectedDialogueIndex = -1;
+                this.updateDialogueList();
+                
+                // 清空表单
+                document.getElementById('dialogue-text').value = '';
+                document.getElementById('audio-input').value = '';
+                
+                // 隐藏修改按钮
+                this.isEditing = false;
+                document.getElementById('add-dialogue').style.display = 'inline-block';
+                document.getElementById('update-dialogue').style.display = 'none';
+                document.getElementById('edit-dialogue-id').style.display = 'none';
+            }
+            
+            tempSaveDialogues() {
+                // 保存到本地存储
+                localStorage.setItem('tempDialogues', JSON.stringify(this.dialogues));
+                alert('对话已临时保存');
+            }
+            
+            loadTempDialogues() {
+                // 从本地存储加载
+                const tempDialogues = localStorage.getItem('tempDialogues');
+                if (tempDialogues) {
+                    try {
+                        this.dialogues = JSON.parse(tempDialogues);
+                        this.updateDialogueList();
+                    } catch (e) {
+                        console.error('加载临时数据失败:', e);
+                        alert('加载临时数据失败');
+                    }
+                } else {
+                    alert('没有临时保存的数据');
+                }
+            }
+            
+            saveDialogues() {
+                // 创建下载链接
+                const dataStr = JSON.stringify(this.dialogues);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const link = document.createElement('a');
+                link.setAttribute('href', dataUri);
+                link.setAttribute('download', 'dialogues.json');
+                link.click();
+            }
+            
+            loadDialogues() {
+                // 创建文件输入元素
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'application/json';
+                
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const dialogues = JSON.parse(event.target.result);
+                            this.dialogues = dialogues;
+                            this.updateDialogueList();
+                            alert('对话已成功加载');
+                        } catch (e) {
+                            console.error('加载JSON文件失败:', e);
+                            alert('加载JSON文件失败');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+        }
+
+        // 动画管理器
+        class AnimationManager {
+            constructor() {
+                this.initAnimationControl();
+            }
+            
+            initAnimationControl() {
+                const addAnimationBtn = document.getElementById('add-animation');
+                const clearAnimationsBtn = document.getElementById('clear-animations');
+                const selectedFishAnimationSelect = document.getElementById('selected-fish-animation');
+                const closeAnimationBtn = document.getElementById('close-animation');
+                
+                addAnimationBtn.addEventListener('click', () => {
+                    const selectedFishId = selectedFishAnimationSelect.value;
+                    const animationType = document.getElementById('animation-type').value;
+                    const animationX = parseFloat(document.getElementById('animation-x').value);
+                    const animationY = parseFloat(document.getElementById('animation-y').value);
+                    const animationAngle = parseFloat(document.getElementById('animation-angle').value);
+                    const animationScale = parseFloat(document.getElementById('animation-scale').value);
+                    const animationDuration = parseFloat(document.getElementById('animation-duration').value);
+                    
+                    // 创建新动画
+                    const fish = this.findFishById(selectedFishId);
+                    if (fish) {
+                        const animation = {
+                            type: animationType,
+                            x: animationX,
+                            y: animationY,
+                            angle: animationAngle,
+                            scale: animationScale,
+                            duration: animationDuration
+                        };
+                        
+                        fish.applyAnimation(animation);
+                    }
+                });
+                
+                clearAnimationsBtn.addEventListener('click', () => {
+                    // 清除所有鱼的动画
+                    for (const fish of fishes) {
+                        fish.activeAnimation = null;
+                    }
+                });
+                
+                closeAnimationBtn.addEventListener('click', () => {
+                    // 关闭动画控制面板
+                    document.getElementById('animation-container').style.display = 'none';
+                });
+            }
+            
+            findFishById(id) {
+                for (const fish of fishes) {
+                    if (fish.id === id) {
+                        return fish;
+                    }
+                }
+                return null;
+            }
+        }
+        
+        // 页面加载时初始化元素
+        window.onload = function() {
+            createBubbles();
+            createSeaweed();
+            
+            // 初始化对话管理器
+            window.dialogueManager  = new DialogueManager();
+            
+            // 初始化动画管理器
+            const animationManager = new AnimationManager();
+            
+            // 动画循环
+            function animate() {
+                for (const fish of fishes) {
+                    fish.updatePosition(fishes);
+                }
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        };
+
+        // 窗口大小调整处理
+        // window.addEventListener('resize', function() {
+        //     for (const fish of fishes) {
+        //         if (fish.x > window.innerWidth - fish.width) fish.x = window.innerWidth - fish.width;
+        //         if (fish.y > window.innerHeight * 0.8 - fish.height) fish.y = window.innerHeight * 0.8 - fish.height;
+                
+        //         // 确保鱼不会超出水面
+        //         const waterSurface = window.innerHeight * 0.2;
+        //         if (fish.y < waterSurface) fish.y = waterSurface;
+                
+        //         // 更新鱼的位置
+        //         fish.container.style.left = fish.x + 'px';
+        //         fish.container.style.top = fish.y + 'px';
+                
+        //         // 如果有对话气泡，更新位置
+        //         if (fish.dialogueBubble) {
+        //             const bubbleWidth = fish.dialogueBubble.clientWidth;
+        //             const bubbleX = fish.x + (fish.direction === 1 ? fish.width + 10 : -bubbleWidth - 10);
+        //             const bubbleY = fish.y - 15;
+                    
+        //             fish.dialogueBubble.style.left = bubbleX + 'px';
+        //             fish.dialogueBubble.style.top = bubbleY + 'px';
+        //         }
+        //     }
+        // });
+
+        // 按 K 键显示和隐藏对话编排控制器
+       window.addEventListener('resize', function() {
+            for (const fish of fishes) {
+                if (fish.dialogueBubble) {
+                    const bubbleWidth = fish.dialogueBubble.clientWidth;
+                    const bubbleX = fish.x + (fish.direction === 1 ? fish.width + 10 : -bubbleWidth - 10);
+                    const bubbleY = fish.y - 15;
+                    fish.dialogueBubble.style.left = bubbleX + 'px';
+                    fish.dialogueBubble.style.top = bubbleY + 'px';
+                }
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'k' || event.key === 'K') {
+                const dialogueContainer = document.getElementById('dialogue-container');
+                if (dialogueContainer.style.display === 'none' || dialogueContainer.style.display === '') {
+                    dialogueContainer.style.display = 'block';
+                } else {
+                    dialogueContainer.style.display = 'none';
+                }
+            }
+            
+            // 按 A键显示和隐藏动画控制编辑器
+            if (event.key === 'a' || event.key === 'A') {
+                const animationContainer = document.getElementById('animation-container');
+                if (animationContainer.style.display === 'none' || animationContainer.style.display === '') {
+                    animationContainer.style.display = 'block';
+                } else {
+                    animationContainer.style.display = 'none';
+                }
+            }
+        });
+//-------------------------------------------
+        const dropZone = document.getElementById('audio-drop-zone');
+
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.style.backgroundColor = '#e9f7ef';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.backgroundColor = '';
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.style.backgroundColor = '';
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('audio/')) {
+                handleAudioFile(file);
+            } else {
+                alert('请拖入有效的音频文件');
+            }
+        });
+
+        this.dialogueBubble.addEventListener('dblclick', () => {
+            const newText = prompt('请输入新的对话内容:', text);
+            const newDuration = prompt('请输入新的对话时间（秒）:', duration.toString());
+
+            if (newText !== null && newDuration !== null) {
+                clearInterval(this.typingTimer); // 停止当前动画
+                text = newText;
+                duration = parseFloat(newDuration);
+
+                // 重置内容和宽度
+                const textSpan = this.dialogueBubble.querySelector('.typing-text');
+                textSpan.textContent = '';
+                this.startTypingAnimation(this.dialogueBubble, text, duration);
+            }
+        });
+
+        function handleAudioFile(file) {
+            const url = URL.createObjectURL(file);
+
+            const audio = new Audio(url);
+            audio.addEventListener('loadedmetadata', () => {
+                const duration = Math.round(audio.duration * 10) / 10; // 四舍五入到小数点后一位
+
+                // 设置对话时间
+                document.getElementById('dialogue-time').value = duration;
+
+                // 解析文件名作为对话内容
+                const fileName = file.name.replace(/\.[^/.]+$/, ""); // 去除扩展名
+                document.getElementById('dialogue-text').value = fileName;
+            });
+            const fakeInput = new DataTransfer();
+            fakeInput.items.add(file);
+            document.getElementById('audio-input').files = fakeInput.files;
+            // 可选：预览音频
+            document.getElementById('audio-input').files = event.dataTransfer.files;
+
+            // 将音频赋值给当前选中鱼，以便 speak 调用
+            const selectedFishId = document.getElementById('selected-fish').value;
+            const fish = dialogueManager.findFishById(selectedFishId);
+            if (fish) {
+                fish.audioUrl = url;
+                fish.dialogueText = document.getElementById('dialogue-text').value;
+
+                // 绑定点击预览事件
+                fish.container.onclick = () => {
+                    const duration = parseFloat(document.getElementById('dialogue-time').value);
+                    fish.speak(fish.dialogueText, duration, fish.audioUrl);
+                };
+            }
+
+            // 设置 input[type="file"] 的值，用于保存音频数据
+            // const fakeInput = new DataTransfer();
+            // fakeInput.items.add(file);
+            // document.getElementById('audio-input').files = fakeInput.files;
+        }
+    </script>
+</body>
+</html>
